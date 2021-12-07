@@ -15,8 +15,10 @@ impl Timeline {
         let starttm = "".to_string();
         let endtm = "".to_string();
         let statslst = HashMap::new();
+        let statsloginlst = HashMap::new();
 
-        let statistic = EventStatistics::new(totalcnt, filepath, starttm, endtm, statslst);
+        let statistic =
+            EventStatistics::new(totalcnt, filepath, starttm, endtm, statslst, statsloginlst);
         return Timeline { stats: statistic };
     }
 
@@ -57,6 +59,21 @@ impl Timeline {
         for msgprint in stats_msges.iter() {
             println!("{}", msgprint);
         }
+        // ユーザ毎のログイン統計情報出力メッセージ生成
+        let mut loginmsges: Vec<String> = Vec::new();
+        loginmsges
+            .push("User\t\t\t Number of Failed Logins  Number of Successful Logins".to_string());
+        loginmsges.push(
+            "----------------------- ------------------------ ----------------------------"
+                .to_string(),
+        );
+        let login_stats_msges: Vec<String> = self.tm_loginstats_set_msg();
+        for msgprint in loginmsges.iter() {
+            println!("{}", msgprint);
+        }
+        for msgprint in login_stats_msges.iter() {
+            println!("{}", msgprint);
+        }
     }
     // イベントID毎の出力メッセージ生成
     fn tm_stats_set_msg(&self, mapsorted: Vec<(&std::string::String, &usize)>) -> Vec<String> {
@@ -95,6 +112,21 @@ impl Timeline {
             }
         }
         msges.push("---------------------------------------".to_string());
+        return msges;
+    }
+    // ユーザ毎のログイン統計情報出力メッセージ生成
+    fn tm_loginstats_set_msg(&self) -> Vec<String> {
+        let mut msges: Vec<String> = Vec::new();
+        for (key, values) in &self.stats.stats_login_list {
+            msges.push(format!(
+                "{0}\t\t\t\t{1}\t\t\t\t{2}",
+                key, values[1], values[0]
+            ));
+        }
+        msges.push(
+            "-----------------------------------------------------------------------------"
+                .to_string(),
+        );
         return msges;
     }
 }

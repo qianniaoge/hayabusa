@@ -8,6 +8,7 @@ pub struct EventStatistics {
     pub start_time: String,
     pub end_time: String,
     pub stats_list: HashMap<String, usize>,
+    pub stats_login_list: HashMap<String, [usize; 2]>,
 }
 /**
 * Windows Event Logの統計情報を出力する
@@ -19,6 +20,7 @@ impl EventStatistics {
         start_time: String,
         end_time: String,
         stats_list: HashMap<String, usize>,
+        stats_login_list: HashMap<String, [usize; 2]>,
     ) -> EventStatistics {
         return EventStatistics {
             total,
@@ -26,6 +28,7 @@ impl EventStatistics {
             start_time,
             end_time,
             stats_list,
+            stats_login_list,
         };
     }
 
@@ -47,6 +50,9 @@ impl EventStatistics {
         // EventIDで集計
         //let evtstat_map = HashMap::new();
         self.stats_eventid(records);
+
+        // ユーザ毎のログイン成功・失敗の集計
+        self.stats_login_eventid(records);
     }
 
     fn stats_time_cnt(&mut self, records: &Vec<EvtxRecordInfo>) {
@@ -94,5 +100,33 @@ impl EventStatistics {
             *count += 1;
         }
         //        return evtstat_map;
+    }
+    // ユーザ毎にEventID(ログイン成功(4624)・失敗(4634))で集計
+    fn stats_login_eventid(&mut self, records: &Vec<EvtxRecordInfo>) {
+        // let mut evtstat_map = HashMap::new();
+        for record in records.iter() {
+            let evtid = utils::get_event_value(&"EventID".to_string(), &record.record);
+            let username = utils::get_event_value(&"TargetUserName".to_string(), &record.record);
+            if evtid.is_none() {
+                continue;
+            }
+            let idnum = evtid.unwrap();
+            let countlist: [usize; 2] = [0, 0];
+            if idnum.to_string() == "4624".to_string() {
+                let count: &mut [usize; 2] = self
+                    .stats_login_list
+                    .entry(username.unwrap().to_string())
+                    .or_insert(countlist);
+                count[0] += 1;
+                //println!("ok:{:?},{:?}",count, username);
+            } else if idnum.to_string() == "4634".to_string() {
+                let count: &mut [usize; 2] = self
+                    .stats_login_list
+                    .entry(username.unwrap().to_string())
+                    .or_insert(countlist);
+                count[1] += 1;
+                //println!("ng:{:?},{:?}",count, username);
+            }
+        }
     }
 }
