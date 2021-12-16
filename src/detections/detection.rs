@@ -3,6 +3,7 @@ extern crate csv;
 use crate::detections::rule::AggResult;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::time::Instant;
 use tokio::{runtime::Runtime, spawn, task::JoinHandle};
 
 use crate::detections::configs;
@@ -38,7 +39,7 @@ impl EvtxRecordInfo {
 
 #[derive(Debug)]
 pub struct Detection {
-    rules: Vec<RuleNode>,
+    pub rules: Vec<RuleNode>,
 }
 
 impl Detection {
@@ -185,6 +186,7 @@ impl Detection {
 
     // 複数のイベントレコードに対して、ルールを1個実行します。
     fn execute_rule(mut rule: RuleNode, records: Arc<Vec<EvtxRecordInfo>>) -> RuleNode {
+        let start = Instant::now();
         let records = &*records;
         let agg_condition = rule.has_agg_condition();
         for record_info in records {
@@ -198,6 +200,7 @@ impl Detection {
             }
         }
 
+        rule.duration += start.elapsed();
         return rule;
     }
 

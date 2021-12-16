@@ -3,6 +3,7 @@ use crate::detections::print::Message;
 
 use chrono::{DateTime, Utc};
 
+use std::time::Duration;
 use std::{collections::HashMap, fmt::Debug, sync::Arc, vec};
 
 use yaml_rust::Yaml;
@@ -29,6 +30,7 @@ pub struct RuleNode {
     pub yaml: Yaml,
     detection: DetectionNode,
     countdata: HashMap<String, HashMap<String, Vec<DateTime<Utc>>>>,
+    pub duration: Duration,
 }
 
 impl Debug for RuleNode {
@@ -47,6 +49,7 @@ impl RuleNode {
             yaml: yaml,
             detection: DetectionNode::new(),
             countdata: HashMap::new(),
+            duration: Duration::from_millis(0),
         };
     }
 

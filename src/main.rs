@@ -14,6 +14,7 @@ use hayabusa::{detections::configs, timeline::timeline::Timeline};
 use hhmmss::Hhmmss;
 use pbr::ProgressBar;
 use serde_json::Value;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::{
@@ -147,6 +148,27 @@ fn analysis_files(evtx_files: Vec<PathBuf>) {
     }
     after_fact();
     detection.print_unique_results();
+    print_rule_duration(detection);
+}
+
+fn print_rule_duration( detection: detection::Detection ) {
+    let mut rules = detection.rules;
+    rules.sort_by(|l,r| {
+        if l.duration == r.duration {
+            return Ordering::Equal; 
+        } else if l.duration >= r.duration {
+            return Ordering::Less; 
+        } else {
+            return Ordering::Greater; 
+        }
+    });
+
+    println!("");
+    println!("[Elasped sec per rule]");
+    for rule in rules {
+        println!("Elasped:{}.{} | Rule Title:{}", rule.duration.as_secs(), rule.duration.subsec_nanos() / 1_000_000, rule.yaml["title"].as_str().unwrap() );
+    }
+    println!("");
 }
 
 // Windowsイベントログファイルを1ファイル分解析する。
