@@ -118,12 +118,8 @@ impl EventStatistics {
         }
         //        return evtstat_map;
     }
-<<<<<<< HEAD
 
     // EventIDで集計
-=======
-    // ユーザ毎にEventID(ログイン成功(4624)・失敗(4634))で集計
->>>>>>> 04cb44a089aff9473667bdd3d2a76028faf95601
     fn stats_login_eventid(&mut self, records: &Vec<EvtxRecordInfo>) {
         // let mut evtstat_map = HashMap::new();
         for record in records.iter() {

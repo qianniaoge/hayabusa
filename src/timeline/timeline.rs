@@ -60,21 +60,6 @@ impl Timeline {
         for msgprint in stats_msges.iter() {
             println!("{}", msgprint);
         }
-        // ユーザ毎のログイン統計情報出力メッセージ生成
-        let mut loginmsges: Vec<String> = Vec::new();
-        loginmsges
-            .push("User\t\t\t Number of Failed Logins  Number of Successful Logins".to_string());
-        loginmsges.push(
-            "----------------------- ------------------------ ----------------------------"
-                .to_string(),
-        );
-        let login_stats_msges: Vec<String> = self.tm_loginstats_set_msg();
-        for msgprint in loginmsges.iter() {
-            println!("{}", msgprint);
-        }
-        for msgprint in login_stats_msges.iter() {
-            println!("{}", msgprint);
-        }
     }
 
     pub fn tm_logon_stats_dsp_msg(&mut self) {
@@ -165,10 +150,7 @@ impl Timeline {
                 key, values[1], values[0]
             ));
         }
-        msges.push(
-            "-----------------------------------------------------------------------------"
-                .to_string(),
-        );
+        msges.push("-----------------------------------------------------------------".to_string());
         return msges;
     }
 }
