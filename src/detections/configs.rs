@@ -68,6 +68,7 @@ fn build_app<'a>() -> ArgMatches<'a> {
     -u --utc 'Output time in UTC format (default: local time)'
     -t --thread-number=[NUMBER] 'Thread number (default: optimal number for performance)'
     -s --statistics 'Prints statistics of event IDs'
+    -l --logon-summary 'User logon and failed logon summary'
     -q --quiet 'Quiet mode. Do not display the launch banner'
     -Q --quiet-errors 'Quiet errors mode. Do not save error logs.'
     --contributors 'Prints the list of contributors'";

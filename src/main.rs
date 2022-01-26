@@ -8,6 +8,7 @@ use hayabusa::detections::detection::{self, EvtxRecordInfo};
 use hayabusa::detections::print::AlertMessage;
 use hayabusa::detections::print::ERROR_LOG_PATH;
 use hayabusa::detections::print::ERROR_LOG_STACK;
+use hayabusa::detections::print::LOGONSUMMARY_FLAG;
 use hayabusa::detections::print::QUIET_ERRORS_FLAG;
 use hayabusa::detections::print::STATISTICS_FLAG;
 use hayabusa::detections::rule::{get_detection_keys, RuleNode};
@@ -96,6 +97,10 @@ impl App {
         }
         if *STATISTICS_FLAG {
             println!("Generating Event ID Statistics");
+            println!("");
+        }
+        if *LOGONSUMMARY_FLAG {
+            println!("Generating Logons Summary");
             println!("");
         }
         if let Some(filepath) = configs::CONFIG.read().unwrap().args.value_of("filepath") {
@@ -220,7 +225,7 @@ impl App {
             pb.inc();
         }
         detection.add_aggcondition_msges(&self.rt);
-        if !*STATISTICS_FLAG {
+        if !(*STATISTICS_FLAG || *LOGONSUMMARY_FLAG) {
             after_fact();
         }
     }
@@ -293,13 +298,14 @@ impl App {
             // timeline機能の実行
             tl.start(&records_per_detect);
 
-            if !*STATISTICS_FLAG {
+            if !(*STATISTICS_FLAG || *LOGONSUMMARY_FLAG) {
                 // ruleファイルの検知
                 detection = detection.start(&self.rt, records_per_detect);
             }
         }
 
-        tl.tm_stats_dsp_msg();
+        tl.tm_evt_stats_dsp_msg();
+        tl.tm_logon_stats_dsp_msg();
 
         return detection;
     }

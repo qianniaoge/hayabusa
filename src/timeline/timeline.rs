@@ -15,16 +15,19 @@ impl Timeline {
         let starttm = "".to_string();
         let endtm = "".to_string();
         let statslst = HashMap::new();
+        let statsloginlst = HashMap::new();
 
-        let statistic = EventStatistics::new(totalcnt, filepath, starttm, endtm, statslst);
+        let statistic =
+            EventStatistics::new(totalcnt, filepath, starttm, endtm, statslst, statsloginlst);
         return Timeline { stats: statistic };
     }
 
     pub fn start(&mut self, records: &Vec<EvtxRecordInfo>) {
-        self.stats.start(records);
+        self.stats.evt_stats_start(records);
+        self.stats.logon_stats_start(records);
     }
 
-    pub fn tm_stats_dsp_msg(&mut self) {
+    pub fn tm_evt_stats_dsp_msg(&mut self) {
         if !configs::CONFIG
             .read()
             .unwrap()
@@ -58,6 +61,47 @@ impl Timeline {
             println!("{}", msgprint);
         }
     }
+
+    pub fn tm_logon_stats_dsp_msg(&mut self) {
+        if !configs::CONFIG
+            .read()
+            .unwrap()
+            .args
+            .is_present("logon-summary")
+        {
+            return;
+        }
+        // 出力メッセージ作成
+        //println!("map -> {:#?}", evtstat_map);
+        let mut sammsges: Vec<String> = Vec::new();
+        sammsges.push("---------------------------------------".to_string());
+        sammsges.push(format!("Evtx File Path: {}", self.stats.filepath));
+        sammsges.push(format!("Total Event Records: {}\n", self.stats.total));
+        sammsges.push(format!("First Timestamp: {}", self.stats.start_time));
+        sammsges.push(format!("Last Timestamp: {}\n", self.stats.end_time));
+        for msgprint in sammsges.iter() {
+            println!("{}", msgprint);
+        }
+        let mut loginmsges: Vec<String> = Vec::new();
+        loginmsges
+            .push("-----------------------------------------------------------------".to_string());
+        loginmsges
+            .push("|                       Number  of  logins                      |".to_string());
+        loginmsges
+            .push("-----------------------------------------------------------------".to_string());
+        loginmsges
+            .push("|        User        |       Failed        |     Successful     |".to_string());
+        loginmsges
+            .push("-----------------------------------------------------------------".to_string());
+        let login_stats_msges: Vec<String> = self.tm_loginstats_set_msg();
+        for msgprint in loginmsges.iter() {
+            println!("{}", msgprint);
+        }
+        for msgprint in login_stats_msges.iter() {
+            println!("{}", msgprint);
+        }
+    }
+
     // イベントID毎の出力メッセージ生成
     fn tm_stats_set_msg(&self, mapsorted: Vec<(&std::string::String, &usize)>) -> Vec<String> {
         let mut msges: Vec<String> = Vec::new();
@@ -93,6 +137,15 @@ impl Timeline {
                     ));
                 }
             }
+        }
+        msges.push("-----------------------------------------------------------------".to_string());
+        return msges;
+    }
+    // ユーザ毎のログイン統計情報出力メッセージ生成
+    fn tm_loginstats_set_msg(&self) -> Vec<String> {
+        let mut msges: Vec<String> = Vec::new();
+        for (key, values) in &self.stats.stats_login_list {
+            msges.push(format!("{0}\t\t\t{1}\t\t\t{2}", key, values[1], values[0]));
         }
         msges.push("---------------------------------------".to_string());
         return msges;

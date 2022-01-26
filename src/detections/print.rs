@@ -52,6 +52,11 @@ lazy_static! {
         .unwrap()
         .args
         .is_present("statistics");
+    pub static ref LOGONSUMMARY_FLAG: bool = configs::CONFIG
+        .read()
+        .unwrap()
+        .args
+        .is_present("logon-summary");
 }
 
 impl Message {
